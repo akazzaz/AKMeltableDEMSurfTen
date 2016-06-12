@@ -57,10 +57,8 @@ bool Ccontact::AM_I_CONTACTING()
 	//if(deltaN>=0) return false; //there is no contact	
 	
 	//AK addition
-	double melt_vol_A = 4/3*PI*(pow(C[ic].pA->R,3)-pow(C[ic].pA->RS,3));
-	double melt_vol_B = 4/3*PI*(pow(C[ic].pB->R,3)-pow(C[ic].pB->RS,3));
-	double vol_A = 4/3*PI*pow(C[ic].pA->R,3);
-	double vol_B = 4/3*PI*pow(C[ic].pB->R,3);
+	double melt_vol_A = 4/3*PI*(pow(pA->R,3)-pow(pA->RS,3));
+	double melt_vol_B = 4/3*PI*(pow(pB->R,3)-pow(pB->RS,3));
 	if(melt_vol==0.0 && melt_vol_A+melt_vol_B>=0.1 && deltaN<=0.2*min(pA->R,pB->R)){return true;} //initial contact with sufficient melt
 	if((deltaN>=0 && deltaNB<=0 && melt_vol<=1e-30) // non-existent water bridge/solid contact
 	||(melt_vol>=1e-30 && deltaN>=min(pow(melt_vol,0.3333),MAX_CAP_LENGTH))// existing capillary bridge rupture
@@ -162,10 +160,10 @@ void Ccontact::increment_force(double dt)
 	
 	//AK Addition
 	double KTHETA = 10.0/pow(RSeff,3);
-	double melt_vol_A = 4/3*PI*(pow(C[ic].pA->R,3)-pow(C[ic].pA->RS,3));
-	double melt_vol_A_old = 4/3*PI*(pow(C[ic].pA->R,3)-pow((C[ic].pA->RS-C[ic].pA->dRS),3));
-	double melt_vol_B = 4/3*PI*(pow(C[ic].pB->R,3)-pow(C[ic].pB->RS,3));
-	double melt_vol_B_old = 4/3*PI*(pow(C[ic].pB->R,3)-pow((C[ic].pB->RS-C[ic].pB->dRS),3));
+	double melt_vol_A = 4/3*PI*(pow(pA->R,3)-pow(pA->RS,3));
+	double melt_vol_A_old = 4/3*PI*(pow(pA->R,3)-pow((pA->RS-pA->dRS),3));
+	double melt_vol_B = 4/3*PI*(pow(pB->R,3)-pow(pB->RS,3));
+	double melt_vol_B_old = 4/3*PI*(pow(pB->R,3)-pow((pB->RS-pB->dRS),3));
 	double dMelt = melt_vol_A + melt_vol_B - melt_vol_A_old - melt_vol_B_old;
 	contact_angle += dMelt*KTHETA;
 	if(contact_angle>CONTACT_ANGLE_MAX){contact_angle=CONTACT_ANGLE_MAX;}
