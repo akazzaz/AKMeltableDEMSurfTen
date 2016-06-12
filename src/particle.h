@@ -63,6 +63,8 @@ public:
 //	bool member;			/**< If this particle belongs to an aggregate, YG.*/
 	
 	double RS, dRS;
+	//AK addition
+	double sum_vij;//sum of melt contact weighting factors
 };
 
 

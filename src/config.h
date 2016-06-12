@@ -50,6 +50,8 @@ class Cconfig
 	
 	double heat_in, heat_out;
 	double PN, PS, PT, PR;
+	//AK addition
+	void melt_dist();//distribution of melt for surface tension force
 
 };
 

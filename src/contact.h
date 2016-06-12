@@ -75,5 +75,11 @@ class Ccontact
 	
 	friend ofstream &operator<<(ofstream &,Ccontact);
 	friend ifstream & operator>>(ifstream &,Ccontact &);
+	
+	// AK Addition
+	double melt_vij;// melt contact weighting factor
+	double melt_vol;
+	double melt_vol_old;
+	double contact_angle;
 };
  

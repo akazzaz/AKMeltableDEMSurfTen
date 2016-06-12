@@ -25,7 +25,14 @@ using namespace std; // for a easier use of cin and cout
 #define PI 3.1415926535 /** Guess what*/
 #define MESH_SIZE 1.05  /** ratio of mesh size and the maximum particle diameter */
           
-#define PSEUDO_2D 0 /**< 1= yes 0 = no (then 3D)*/	     
+#define PSEUDO_2D 0 /**< 1= yes 0 = no (then 3D)*/	
+
+//AK Addition
+#define MAX_CAP_LENGTH 0.5 /**<maximum capillary bridge length before reupture*/
+#define MELT_SURFTEN true  /**<include effect of melt surface tension*/
+#define CONTACT_ANGLE_MIN 5.0/180.0*PI /**<minimum contact angle for surface tension*/ 
+#define CONTACT_ANGLE_MAX 60.0/180.0*PI /**<maximum contact angle for surface tension*/
+#define MELT_SURFACE_TENSION 0.001 /**<surface tension of melt material*/   
 	     
 class Cvector;
 class Cmatrix;

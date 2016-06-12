@@ -12,6 +12,9 @@ void Cconfig::iterate(double time_step)
 	sum_force(); 			//sum the force moment of each contact on particle   
 	if(simule_thermal_conduction) sum_heat(); 					//Heat transfer 
 	
+	//AK addition
+	if(MELT_SURFTEN){melt_dist();}
+	
 	cell.rigid_velocity *= 0.0;
 	corrector();			//acceleration of particles according to the sum of force/moment they experience
 	cell.rigid_velocity /= parameter.total_mass;
@@ -411,6 +414,24 @@ void  Cconfig::Evale_conductivity_tensor() /**< Measure the conductivity tensor 
 */
 }
 
+//AK addition
+void  Cconfig::melt_dist() /**< carry out melt distribution at contacts for surface tension */
+{
+	for(int ip=0;ip<P.size();ip++){
+		P[ip].sum_vij =0.0;
+	}
+	for(int ic=0;ic<C.size();ic++){
+		C[ic].melt_vij = C[ic].pA->R*C[ic].pB->R*(C[ic].pA->R+C[ic].pB->R);
+		C[ic].pA->sum_vij += C[ic].melt_vij;
+		C[ic].pB->sum_vij += C[ic].melt_vij;
+	}
+	for(int ic=0;ic<C.size();ic++){
+		double dV_pA = C[ic].melt_vij/C[ic].pA->sum_vij*4/3*PI*(pow(C[ic].pA->R,3)-pow(C[ic].pA->RS,3));
+		double dV_pB = C[ic].melt_vij/C[ic].pB->sum_vij*4/3*PI*(pow(C[ic].pB->R,3)-pow(C[ic].pB->RS,3));
+		C[ic].melt_vol_old = C[ic].melt_vol;
+		C[ic].melt_vol = dV_pA+dV_pB;
+	}
+}
 
 
 

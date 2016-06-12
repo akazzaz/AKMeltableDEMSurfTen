@@ -178,6 +178,8 @@ Cparticle::Cparticle(void)
 	phi_ext=0;			/**<Particle external heat rate.*/
 	production=0;	
 	L = 0;
+	//AK addition
+	sum_vij=0;
 }
 
 
