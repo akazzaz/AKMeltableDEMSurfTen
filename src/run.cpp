@@ -29,6 +29,9 @@ void Crun::init_evolve(void)
 	get_secure("Do you want to simule the thermal conduction", "CONDUCTION",	config.simule_thermal_conduction);
 	get_secure("Do you want to simule the thermal production", "PRODUCTION",	config.simule_thermal_production);
 	get_secure("Do you want to simule the thermal expansion", "EXPANSION",		config.simule_thermal_expansion);
+	
+	//AK addition
+	get_secure("Do you want to simule the melt surface tension", "MELT_SURFTEN",MELT_SURFTEN);
 		
 	
 	string choice;

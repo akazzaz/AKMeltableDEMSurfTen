@@ -39,7 +39,6 @@ Ccontact::Ccontact(Cparticle *partA, Cparticle *partB, Ccell *c, Cparameter *par
 	melt_vol=0;
 	melt_vol_old=0;
 	contact_angle=CONTACT_ANGLE_MIN;
-	
 }
 
 bool Ccontact::AM_I_CONTACTING()
@@ -57,12 +56,15 @@ bool Ccontact::AM_I_CONTACTING()
 	//if(deltaN>=0) return false; //there is no contact	
 	
 	//AK addition
-	double melt_vol_A = 4/3*PI*(pow(pA->R,3)-pow(pA->RS,3));
-	double melt_vol_B = 4/3*PI*(pow(pB->R,3)-pow(pB->RS,3));
-	if(melt_vol==0.0 && melt_vol_A+melt_vol_B>=0.1 && deltaN<=0.2*min(pA->R,pB->R)){return true;} //initial contact with sufficient melt
-	if((deltaN>=0 && deltaNB<=0 && melt_vol<=1e-30) // non-existent water bridge/solid contact
-	||(melt_vol>=1e-30 && deltaN>=min(pow(melt_vol,0.3333),MAX_CAP_LENGTH))// existing capillary bridge rupture
-	){return false;}
+	if(!MELT_SURFTEN && deltaN>=0) return false; //there is no contact
+	else if (MELT_SURFTEN){
+		double melt_vol_A = 4/3*PI*(pow(pA->R,3)-pow(pA->RS,3));
+		double melt_vol_B = 4/3*PI*(pow(pB->R,3)-pow(pB->RS,3));
+		if(melt_vol==0.0 && melt_vol_A+melt_vol_B>=0.1 && deltaN<=0.2*min(pA->R,pB->R)){return true;} //initial contact with sufficient melt
+		if((deltaN>=0 && deltaNB<=0 && melt_vol<=1e-30) // non-existent water bridge/solid contact
+		||(melt_vol>=1e-30 && deltaN>=min(pow(melt_vol,0.3333),MAX_CAP_LENGTH))// existing capillary bridge rupture
+		){return false;}
+	}
 	
 	else return true;
 }
@@ -159,25 +161,29 @@ void Ccontact::increment_force(double dt)
 	a = sqrt(1.0*Reff*fabs(deltaN)); // exact contact radius
 	
 	//AK Addition
-	double KTHETA = 10.0/pow(RSeff,3);
-	double melt_vol_A = 4/3*PI*(pow(pA->R,3)-pow(pA->RS,3));
-	double melt_vol_A_old = 4/3*PI*(pow(pA->R,3)-pow((pA->RS-pA->dRS),3));
-	double melt_vol_B = 4/3*PI*(pow(pB->R,3)-pow(pB->RS,3));
-	double melt_vol_B_old = 4/3*PI*(pow(pB->R,3)-pow((pB->RS-pB->dRS),3));
-	double dMelt = melt_vol_A + melt_vol_B - melt_vol_A_old - melt_vol_B_old;
-	contact_angle += dMelt*KTHETA;
-	if(contact_angle>CONTACT_ANGLE_MAX){contact_angle=CONTACT_ANGLE_MAX;}
-	if(contact_angle<CONTACT_ANGLE_MIN){contact_angle=CONTACT_ANGLE_MIN;}
-	if(dt==0){contact_angle = CONTACT_ANGLE_MIN;}
-	double R2 = max(pA->R,pB->R);
-	double D_bridge = deltaNS>0.0?deltaNS:0.0;
-	double alpha_factor = PI*MELT_SURFACE_TENSION*sqrt(pA->R*pB->R);
-	double V_R3 = melt_vol>1e-6?melt_vol/pow(R2,3):1e-6/pow(R2,3);
-	double Log_V_R3 = log(V_R3);
-	double coeff_a = -1.1*pow(V_R3,-0.53);
-	double coeff_b = (-0.148*Log_V_R3-0.96)*pow(contact_angle,2)-0.0082*Log_V_R3+0.48;
-	double coeff_c = 0.078+0.0018*Log_V_R3;
-	double fcap = MELT_SURFTEN?alpha_factor*(coeff_c+exp(coeff_a*D_bridge/R2+coeff_b)):0.0;
+	double fcap = 0.0;
+	if (MELT_SURFTEN){
+		double KTHETA = 10.0/pow(RSeff,3);
+		double melt_vol_A = 4/3*PI*(pow(pA->R,3)-pow(pA->RS,3));
+		double melt_vol_A_old = 4/3*PI*(pow(pA->R,3)-pow((pA->RS-pA->dRS),3));
+		double melt_vol_B = 4/3*PI*(pow(pB->R,3)-pow(pB->RS,3));
+		double melt_vol_B_old = 4/3*PI*(pow(pB->R,3)-pow((pB->RS-pB->dRS),3));
+		double dMelt = melt_vol_A + melt_vol_B - melt_vol_A_old - melt_vol_B_old;
+		contact_angle += dMelt*KTHETA;
+		if(contact_angle>CONTACT_ANGLE_MAX){contact_angle=CONTACT_ANGLE_MAX;}
+		if(contact_angle<CONTACT_ANGLE_MIN){contact_angle=CONTACT_ANGLE_MIN;}
+		if(dt==0){contact_angle = CONTACT_ANGLE_MIN;}
+		double R2 = max(pA->R,pB->R);
+		double D_bridge = deltaNS>0.0?deltaNS:0.0;
+		double alpha_factor = PI*MELT_SURFACE_TENSION*sqrt(pA->R*pB->R);
+		double V_R3 = melt_vol>1e-6?melt_vol/pow(R2,3):1e-6/pow(R2,3);
+		double Log_V_R3 = log(V_R3);
+		double coeff_a = -1.1*pow(V_R3,-0.53);
+		double coeff_b = (-0.148*Log_V_R3-0.96)*pow(contact_angle,2)-0.0082*Log_V_R3+0.48;
+		double coeff_c = 0.078+0.0018*Log_V_R3;
+		fcap = alpha_factor*(coeff_c+exp(coeff_a*D_bridge/R2+coeff_b));
+	}
+	
 
 	//vector, forces and moments
 /*	Fn = nA*(deltaN*E*a);							//normal force
@@ -189,9 +195,8 @@ void Ccontact::increment_force(double dt)
 	double FBond = deltaNB*E*aB;
 // for solid contact, deltaNS < 0, deltaNB>=0!, Fn*nA negtive for compression.	
 //	Fn = nA*(deltaNS*E*aS - deltaNB*E*aB);				//normal force, imp. before 15.11.2010
-//	Fn = nA*(deltaNS*E*aS + FBond);						//normal force, imp YG
-	//AK addition
-	Fn = nA*(deltaNS*E*aS + FBond + fcap);
+	//Fn = nA*(deltaNS*E*aS + FBond);						//normal force
+	Fn = nA*(deltaNS*E*aS + FBond + fcap); //AK addition
 	Ft += (uDotT*E* ct *aS*dt)  + (OmeMean^Ft)*dt; 		//increment norm and rotation for tangential force
 	Gn += (dOmeN*E*aS*aS*aS*dt) + (OmeMean^Gn)*dt ; 	//rolling moment cr is the numerical constant, dimensionless, for the rolling and twist 
 	Gt += (dOmeT*E*aS*aS*aS*dt) + (OmeMean^Gt)*dt ;		//twist moment

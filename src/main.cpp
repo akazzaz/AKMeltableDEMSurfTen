@@ -81,7 +81,6 @@ if(action=="POST_PROCESS")
 	for(Ntask=0;Ntask<1;Ntask++)
 		{	
 		Lrun[Ntask].init();
-        Lrun[Ntask].run();
 	    string one_more;
 	   	get_secure("Do you want to add one more task?","ONE_MORE_TASK","NO_MORE_TASK", one_more);
 		if(one_more=="ONE_MORE_TASK")cout<<"Ready to get the new task"<<endl;

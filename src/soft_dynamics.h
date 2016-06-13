@@ -4,7 +4,7 @@
 #include <QThread>  /**<Qt multicore*/
 
 #include <omp.h>	// OpenMP
-#define NTHREADS 1	// Number of CPUs for one job
+#define NTHREADS 2	// Number of CPUs for one job
 #include <time.h>
 
 #include <cstdlib>
@@ -29,10 +29,10 @@ using namespace std; // for a easier use of cin and cout
 
 //AK Addition
 #define MAX_CAP_LENGTH 0.5 /**<maximum capillary bridge length before reupture*/
-#define MELT_SURFTEN true  /**<include effect of melt surface tension*/
+bool MELT_SURFTEN /**<include effect of melt surface tension*/
 #define CONTACT_ANGLE_MIN 5.0/180.0*PI /**<minimum contact angle for surface tension*/ 
 #define CONTACT_ANGLE_MAX 60.0/180.0*PI /**<maximum contact angle for surface tension*/
-#define MELT_SURFACE_TENSION 0.001 /**<surface tension of melt material*/   
+#define MELT_SURFACE_TENSION 0.001 /**<surface tension of melt material*/        
 	     
 class Cvector;
 class Cmatrix;

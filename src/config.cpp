@@ -417,6 +417,7 @@ void  Cconfig::Evale_conductivity_tensor() /**< Measure the conductivity tensor 
 //AK addition
 void  Cconfig::melt_dist() /**< carry out melt distribution at contacts for surface tension */
 {
+#pragma omp parallel for num_threads(NTHREADS)	// YG, MPI  
 	for(int ip=0;ip<P.size();ip++){
 		P[ip].sum_vij =0.0;
 	}
@@ -425,6 +426,7 @@ void  Cconfig::melt_dist() /**< carry out melt distribution at contacts for surf
 		C[ic].pA->sum_vij += C[ic].melt_vij;
 		C[ic].pB->sum_vij += C[ic].melt_vij;
 	}
+#pragma omp parallel for num_threads(NTHREADS)	// YG, MPI  
 	for(int ic=0;ic<C.size();ic++){
 		double dV_pA = C[ic].melt_vij/C[ic].pA->sum_vij*4/3*PI*(pow(C[ic].pA->R,3)-pow(C[ic].pA->RS,3));
 		double dV_pB = C[ic].melt_vij/C[ic].pB->sum_vij*4/3*PI*(pow(C[ic].pB->R,3)-pow(C[ic].pB->RS,3));
@@ -432,6 +434,7 @@ void  Cconfig::melt_dist() /**< carry out melt distribution at contacts for surf
 		C[ic].melt_vol = dV_pA+dV_pB;
 	}
 }
+
 
 
 
